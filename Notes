@@ -1,0 +1,18 @@
+qemu: 
+  -kernel bbl used to provide SBI interface for linux.
+
+What does a minimal bootloader look like?
+http://osblog.stephenmarz.com/ch1.html
+https://github.com/qemu/qemu/blob/master/hw/riscv/virt.c
+https://www.sifive.com/blog/all-aboard-part-6-booting-a-risc-v-linux-kernel
+  RISC-V relies upon a device tree to specify the machine. virt.c details the device tree for the virt machine
+  SBI helps hide implementation details.
+  BBL, a machine mode shim, provides both device tree and SBI implementations. BBL maps to BIOS-ish
+  BBL takes a device tree as input from another boot loader, and strips out implementation details
+  BBL pauses all HARTs, the enables when safe.
+  BBL sets up a PMP
+  BBL handles machine mode trap handlers
+  BBL jumps from machine mode to supervisor mode, then to its payload, which will be a simple ELF image
+  So it's like a second-level bootloader
+  
+  
