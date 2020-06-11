@@ -1,23 +1,22 @@
-GNU ld (GNU Binutils) 2.29
-  Supported emulations:
-   elf64lriscv
-   elf32lriscv
-using internal linker script:
-==================================================
 /* Script for -z combreloc: combine and sort reloc sections */
 /* Copyright (C) 2014-2017 Free Software Foundation, Inc.
    Copying and distribution of this script, with or without modification,
    are permitted in any medium without royalty provided the copyright
    notice and this notice are preserved.  */
-OUTPUT_FORMAT("elf64-littleriscv", "elf64-littleriscv",
-	      "elf64-littleriscv")
+OUTPUT_FORMAT("elf32-littleriscv", "elf32-littleriscv",
+	      "elf32-littleriscv")
 OUTPUT_ARCH(riscv)
 ENTRY(_start)
 SEARCH_DIR("/opt/riscv-toolchain/riscv64-unknown-elf/lib");
+/* Manually configure the memory regions used by the linker */
+MEMORY {
+  ram (rwx) : ORIGIN = 0x80400000,  LENGTH = 128M
+}
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
   PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x10000)); . = SEGMENT_START("text-segment", 0x10000) + SIZEOF_HEADERS;
+  PROVIDE(__stack_top$ = ORIGIN(ram) + LENGTH(ram));
   .interp         : { *(.interp) }
   .note.gnu.build-id : { *(.note.gnu.build-id) }
   .hash           : { *(.hash) }
@@ -238,6 +237,3 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
 }
-
-
-==================================================
