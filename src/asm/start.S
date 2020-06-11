@@ -1,12 +1,11 @@
-# boot.S
-# jacked from Stephen Marz: http://osblog.stephenmarz.com/ch1.html
-# riscv-abi: https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md
-.option norvc # disable compressed instructions for now
+# stolen and mutated from Stephen Marz: http://osblog.stephenmarz.com/ch1.html
+# References: riscv-abi: https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md
+.option norvc # disable compressed instructions
 .section .data # blank data for now
 .section .init # place start.S at the begining of the ELF executable file being created
 
 .global _start
-// declare symbol _start as a function to help gdb terminate their backtrace
+// declare symbol _start as a function to help gdb terminate its backtrace
 .type _start, @function
 .cfi_startproc
 _start:
@@ -18,25 +17,24 @@ _start:
 # https://www.sifive.com/blog/all-aboard-part-3-linker-relaxation-in-riscv-toolchain
 # TLDR: attempts to use smaller branch instructions (compressed jal, jal) 
 # instead of an auipc_ jalr pair for shorter jumps.
-# We must disable it for this instruction only. 
+# We must disable it for loading the global_pointer$. 
 .option push
 .option norelax
-  la gp, __global_pointer$ # load address of symbol _global_pointer to register 
-# gp (register x3) as required by the risc-v abi
+  la gp, __global_pointer$ # load global pointer as required by risc-v abi 
 .option pop
 
-/* Setup the stack pointer. */
+/* Setup the stack pointer for c environment. */
 la sp, __stack_top$
-/* Setup the frame pointer */
+/* Setup the frame pointer for c enviornment */
 add s0, sp, zero
 /* Clear argc and argv */
 li a0, 0
 li a1, 0
 
-// TODO: zero the BSS
-// TODO: relocate the data section
-// TODO: call __libc_init_array
-// TODO: register __libc_fini_array with atexit
+// TODO: zero the BSS as expected.
+// INVESTIGATE: reason for relocating the data section 
+// INVESTIGATE: calling __libc_init_array
+// INVESTIGATE: registering __libc_fini_array with atexit
 j main
 .cfi_endproc
 .end 

@@ -3,14 +3,17 @@
    Copying and distribution of this script, with or without modification,
    are permitted in any medium without royalty provided the copyright
    notice and this notice are preserved.  */
-OUTPUT_FORMAT("elf32-littleriscv", "elf32-littleriscv",
-	      "elf32-littleriscv")
+OUTPUT_FORMAT("elf64-littleriscv", "elf64-littleriscv",
+	      "elf64-littleriscv")
 OUTPUT_ARCH(riscv)
 ENTRY(_start)
 SEARCH_DIR("/opt/riscv-toolchain/riscv64-unknown-elf/lib");
-/* Manually configure the memory regions used by the linker */
+/* Manually configure the memory regions used by the linker.
+ * https://github.com/qemu/qemu/blob/master/hw/riscv/boot.c 
+ * #define's KERNEL_BOOT_ADDRESS as 0x80200000. Start the memory region of our 
+ * kernel there */
 MEMORY {
-  ram (rwx) : ORIGIN = 0x80400000,  LENGTH = 128M
+  ram (rwx) : ORIGIN = 0x80200000,  LENGTH = 128M
 }
 SECTIONS
 {
