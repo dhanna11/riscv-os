@@ -19,7 +19,6 @@ SECTIONS
 {
   /* Read-only sections, merged into text segment: */
   PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x10000)); . = SEGMENT_START("text-segment", 0x10000) + SIZEOF_HEADERS;
-  PROVIDE(__stack_top$ = ORIGIN(ram) + LENGTH(ram));
   .interp         : { *(.interp) }
   .note.gnu.build-id : { *(.note.gnu.build-id) }
   .hash           : { *(.hash) }
@@ -196,7 +195,30 @@ SECTIONS
   . = ALIGN(64 / 8);
   . = SEGMENT_START("ldata-segment", .);
   . = ALIGN(64 / 8);
-  _end = .; PROVIDE (end = .);
+
+  /* Define kernel stack and heap symbols at the end of the data segment. 
+   * NOTE: This does not actually "allocate" space for our stack and heap! 
+   * This is mostly to provide symbols for our initialization code to use. 
+   * NOTE: In embedded systems, placing a fixed size stack before the heap is
+   * a valid design decision. I'm only placing the stack at high mem to match
+   * convention.
+   * */
+
+   _end = .;
+  .heap (NOLOAD) :  
+  {
+    PROVIDE(__heap_start = .);
+    PROVIDE(__kheap = .);
+    PROVIDE(__heap_end = .);
+  }
+
+ . = ALIGN(ORIGIN(ram) + LENGTH(ram), 16);
+ .stack (NOLOAD) : 
+ {
+  PROVIDE(__stack_top$ = .);
+  PROVIDE(__kstack = .);
+ }
+
   . = DATA_SEGMENT_END (.);
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }
